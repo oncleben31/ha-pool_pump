@@ -1,10 +1,10 @@
 {
     "config": {
-        "title": "Blueprint",
+        "title": "Pool Pump Manager",
         "step": {
             "user": {
-                "title": "Blueprint",
-                "description": "If you need help with the configuration have a look here: https://github.com/custom-components/blueprint",
+                "title": "Pool Pump Manager",
+                "description": "If you need help with the configuration have a look here: https://github.com/oncleben31/ha-pool_pump",
                 "data": {
                     "username": "Username",
                     "password": "Password"
@@ -15,7 +15,7 @@
             "auth": "Username/Password is wrong."
         },
         "abort": {
-            "single_instance_allowed": "Only a single configuration of Blueprint is allowed."
+            "single_instance_allowed": "Only a single configuration of Pool Pump Manager is allowed."
         }
     },
     "options": {

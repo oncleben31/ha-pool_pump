@@ -1,5 +1,5 @@
 {
-    "name": "Blueprint",
+    "name": "Pool Pump Manager",
     "hacs": "0.24.0",
     "domains": [
         "binary_sensor",

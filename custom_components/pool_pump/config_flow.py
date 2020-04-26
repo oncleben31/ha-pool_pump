@@ -5,7 +5,7 @@ from homeassistant.core import callback
 
 from sampleclient.client import Client
 
-from custom_components.blueprint.const import (  # pylint: disable=unused-import
+from custom_components.pool_pump.const import (  # pylint: disable=unused-import
     CONF_PASSWORD,
     CONF_USERNAME,
     DOMAIN,
