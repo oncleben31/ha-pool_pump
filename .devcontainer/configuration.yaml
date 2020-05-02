@@ -1,5 +1,108 @@
 default_config:
+
 logger:
   default: error
   logs:
-    custom_components.blueprint: debug
+    custom_components.pool_pump: debug
+
+# automation: !include automations.yaml
+
+# automation to call pool_pump.check service when needed
+automation:
+  - alias: 'Pool Pump On'
+    trigger:
+      - platform: state
+        entity_id: input_select.pool_pump_mode
+        to: 'On'
+    action:
+      service: homeassistant.turn_on
+      # entity_id: switch.fake_pump_switch ### replaced for development
+      entity_id: input_boolean.fake_pump_switch
+  - alias: 'Pool Pump Off'
+    trigger:
+      - platform: state
+        entity_id: input_select.pool_pump_mode
+        to: 'Off'
+    action:
+      service: homeassistant.turn_off
+      # entity_id: switch.fake_pump_switch ### replaced for development
+      entity_id: input_boolean.fake_pump_switch
+  - alias: 'Check Pool Pump Periodically'
+    trigger:
+      - platform: time_pattern
+        minutes: '/5'
+        seconds: 00
+    condition:
+      condition: and
+      conditions:
+        - condition: sun
+          after: sunrise
+          after_offset: '-1:00:00'
+        - condition: sun
+          before: sunset
+          before_offset: '1:30:00'
+    action:
+      service: pool_pump.check
+  - alias: 'Check Pool Pump on Event'
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: state
+        entity_id:
+          - input_select.pool_pump_mode
+          - input_boolean.swimming_season
+          - input_number.run_pool_pump_hours_swimming_season
+          - input_number.run_pool_pump_hours_off_season
+          # - binary_sensor.pool_water_level_critical ### replaced for development
+          - input_boolean.fake_water_level_critical
+    action:
+      service: pool_pump.check
+
+input_select:
+  # input_select to define pump mode: Off, On, Auto
+  pool_pump_mode:
+    name: Pool Pump mode
+    options:
+      - 'Auto'
+      - 'On'
+      - 'Off'
+    initial: 'Auto'
+    icon: mdi:water-pump
+
+input_number:
+  # input_number to define filtering duration during swiming season
+  run_pool_pump_hours_swimming_season:
+    name: Run Pool Pump in Swimming Season
+    min: 1
+    max: 8
+    step: 1
+  # input_number to define filtering duration during off season
+  run_pool_pump_hours_off_season:
+    name: Run Pool Pump in Off Season
+    min: 1
+    max: 6
+    step: 1
+
+input_boolean:
+  # input_boolean to define swiming season or off season. Will impact the duration and the schedule
+  swimming_season:
+    name: Swimming Season
+    icon: mdi:swim
+  # input_boolean to simulate the pump entity switch. Only for development environment.
+  fake_pump_switch:
+    name: Pump
+    icon: mdi:engine
+  # input_boolean to simulate the water critical level sensor. Only for development environment.
+  fake_water_level_critical:
+    name: Water Critical Level
+    icon: mdi:hydraulic-oil-level
+
+# Pool Pump Manager custom component configuration
+pool_pump:
+  switch_entity_id: input_boolean.fake_pump_switch
+  pool_pump_mode_entity_id: input_select.pool_pump_mode
+  swimming_season_entity_id: input_boolean.swimming_season
+  run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
+  run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
+  # optional:
+  water_level_critical_entity_id: input_boolean.fake_water_level_critical
