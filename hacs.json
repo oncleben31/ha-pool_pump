@@ -1,11 +1,5 @@
 {
     "name": "Pool Pump Manager",
-    "hacs": "0.24.0",
-    "domains": [
-        "binary_sensor",
-        "sensor",
-        "switch"
-    ],
-    "iot_class": "Cloud Polling",
-    "homeassistant": "0.108.0"
+    "content_in_root": false,
+    "iot_class": "Cloud Polling"
 }
