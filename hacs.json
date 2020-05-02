@@ -1,6 +1,6 @@
 {
     "name": "Pool Pump Manager",
     "content_in_root": false,
-    "render_readme": true,
+    "render_readme": false,
     "iot_class": "Cloud Polling"
 }
