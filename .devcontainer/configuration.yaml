@@ -49,11 +49,9 @@ automation:
         event: start
       - platform: state
         entity_id:
+          # - sensor.pool_water_temperature ### replaced for development
           - input_number.pool_water_temperature
           - input_select.pool_pump_mode
-          - input_boolean.swimming_season
-          - input_number.run_pool_pump_hours_swimming_season
-          - input_number.run_pool_pump_hours_off_season
           # - binary_sensor.pool_water_level_critical ### replaced for development
           - input_boolean.fake_water_level_critical
     action:
@@ -71,19 +69,6 @@ input_select:
     icon: mdi:water-pump
 
 input_number:
-  # input_number to define filtering duration during swiming season
-  run_pool_pump_hours_swimming_season:
-    name: Run Pool Pump in Swimming Season
-    min: 1
-    max: 8
-    step: 1
-  # input_number to define filtering duration during off season
-  run_pool_pump_hours_off_season:
-    name: Run Pool Pump in Off Season
-    min: 1
-    max: 6
-    step: 1
-  # input_number to simulate the pool water temperature. Only for development environment.
   pool_water_temperature:
     name: Pool Water temperature
     min: 0
@@ -91,10 +76,6 @@ input_number:
     step: 1
 
 input_boolean:
-  # input_boolean to define swiming season or off season. Will impact the duration and the schedule
-  swimming_season:
-    name: Swimming Season
-    icon: mdi:swim
   # input_boolean to simulate the pump entity switch. Only for development environment.
   fake_pump_switch:
     name: Pump
@@ -109,8 +90,5 @@ pool_pump:
   switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
   pool_temperature_entity_id: input_number.pool_water_temperature
-  swimming_season_entity_id: input_boolean.swimming_season
-  run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
-  run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
   # optional:
   water_level_critical_entity_id: input_boolean.fake_water_level_critical

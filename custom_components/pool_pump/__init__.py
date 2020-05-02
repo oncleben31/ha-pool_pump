@@ -34,9 +34,6 @@ from .const import (
     ATTR_SWITCH_ENTITY_ID,
     ATTR_POOL_PUMP_MODE_ENTITY_ID,
     ATTR_POOL_TEMPERATURE_ENTITY_ID,
-    ATTR_SWIMMING_SEASON_ENTITY_ID,
-    ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID,
-    ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID,
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
     SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES,
     SWIMMING_SEASON_BREAK_MINUTES,
@@ -51,9 +48,6 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(ATTR_SWITCH_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_PUMP_MODE_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_TEMPERATURE_ENTITY_ID): cv.entity_id,
-                vol.Required(ATTR_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
-                vol.Required(ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
-                vol.Required(ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID): cv.entity_id,
                 vol.Optional(
                     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID, default=None
                 ): vol.Any(cv.entity_id, None),
@@ -75,15 +69,6 @@ async def async_setup(hass: HomeAssistant, config: Config):
     # Copy configuration values for later use.
     hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID] = config[DOMAIN][
         ATTR_POOL_TEMPERATURE_ENTITY_ID
-    ]
-    hass.data[DOMAIN][ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID] = config[DOMAIN][
-        ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID
-    ]
-    hass.data[DOMAIN][ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID] = config[DOMAIN][
-        ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID
-    ]
-    hass.data[DOMAIN][ATTR_SWIMMING_SEASON_ENTITY_ID] = config[DOMAIN][
-        ATTR_SWIMMING_SEASON_ENTITY_ID
     ]
     hass.data[DOMAIN][ATTR_POOL_PUMP_MODE_ENTITY_ID] = config[DOMAIN][
         ATTR_POOL_PUMP_MODE_ENTITY_ID
