@@ -139,22 +139,19 @@ class PoolPumpManager:
 
     def _build_parameters(self):
         """Build parameters for pool pump manager."""
-        daylight = self._daylight_today()
-        run_hours_total = min(
-            daylight,
+        run_hours_total = (
             float(
                 self._hass.states.get(
                     self._hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID]
                 ).state
             )
-            / 2,
+            / 2
         )
         offset = SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
         break_duration = SWIMMING_SEASON_BREAK_MINUTES
 
-        # Try to squeeze the runs into the daylight period.
-        if daylight > run_hours_total:
-            breaks_maximum = (daylight - run_hours_total) * 60
+        if 24 > run_hours_total:
+            breaks_maximum = (24 - run_hours_total) * 60
             _LOGGER.debug(
                 "Breaks maximum is %.1f for offset %s and break %s",
                 breaks_maximum,
@@ -176,22 +173,6 @@ class PoolPumpManager:
         duration = run_hours_total * 60.0 * 0.5
         durations = [duration, break_duration, duration]
         return offset, durations
-
-    def _daylight_today(self) -> float:
-        """Calculate duration in hours between sunrise and sunset today."""
-        today = dt_util.now()
-        today = today.replace(hour=1)
-        _LOGGER.debug("Calculating daylight for today: %s", today)
-        sunrise = get_astral_event_next(
-            self._hass, SUN_EVENT_SUNRISE, dt_util.as_utc(today)
-        )
-        sunset = get_astral_event_next(
-            self._hass, SUN_EVENT_SUNSET, dt_util.as_utc(today)
-        )
-        daylight = sunset - sunrise
-        daylight_in_hours = daylight.total_seconds() / 3600
-        _LOGGER.debug("Total daylight today: %.1f hours", daylight_in_hours)
-        return daylight_in_hours
 
     def build_runs(self, run_start_time, durations):
         """Build the list of runs."""
@@ -218,12 +199,11 @@ class PoolPumpManager:
         if await self.is_water_level_critical():
             _LOGGER.debug("Water level critical - pump should be off")
         else:
-            if self._sun.state == STATE_ABOVE_HORIZON:
-                for run in self._runs:
-                    if run.run_now(self._now):
-                        _LOGGER.debug("Pool pump should be on now: %s", run)
-                        await self._switch_pool_pump(STATE_ON)
-                        return
+            for run in self._runs:
+                if run.run_now(self._now):
+                    _LOGGER.debug("Pool pump should be on now: %s", run)
+                    await self._switch_pool_pump(STATE_ON)
+                    return
         # If we arrive here, the pool pump should be off.
         _LOGGER.debug("Pool pump should be off")
         await self._switch_pool_pump(STATE_OFF)
