@@ -72,7 +72,7 @@ schedule taking into account the pool water temperature.
 
 In the following examples we are assuming that you have a switch that is
 connected to your pool pump and can turn that on/off already. That switch
-is already integrated into Home Assistant with entity id `switch.pool_pump`.
+is already integrated into Home Assistant with entity id `switch.pool_pump_switch`.
 
 ### Tri-state switch
 
@@ -89,7 +89,7 @@ pump into 'Auto' mode, and whenever several key levers and sensors change.
 
 ```yaml
 input_select:
-  pool_pump:
+  pool_pump_mode:
     name: Pool Pump mode
     options:
       - 'Auto'
@@ -102,19 +102,19 @@ automation:
   - alias: 'Pool Pump On'
     trigger:
       - platform: state
-        entity_id: input_select.pool_pump
+        entity_id: input_select.pool_pump_mode
         to: 'On'
     action:
       service: homeassistant.turn_on
-      entity_id: switch.pool_pump
+      entity_id: switch.pool_pump_switch
   - alias: 'Pool Pump Off'
     trigger:
       - platform: state
-        entity_id: input_select.pool_pump
+        entity_id: input_select.pool_pump_mode
         to: 'Off'
     action:
       service: homeassistant.turn_off
-      entity_id: switch.pool_pump
+      entity_id: switch.pool_pump_switch
   - alias: 'Check Pool Pump Periodically'
     trigger:
       - platform: time_pattern
@@ -136,7 +136,7 @@ automation:
       - platform: homeassistant
         event: start
       - platform: state
-        entity_id: input_select.pool_pump
+        entity_id: input_select.pool_pump_mode
         to: 'Auto'
       - platform: state
         entity_id:
@@ -198,8 +198,8 @@ make the right decision and turn the pool pump on or off automatically.
 
 ```yaml
 pool_pump:
-  switch_entity_id: switch.pool_pump
-  pool_pump_mode_entity_id: input_select.pool_pump
+  switch_entity_id: switch.pool_pump_switch
+  pool_pump_mode_entity_id: input_select.pool_pump_mode
   swimming_season_entity_id: input_boolean.swimming_season
   run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
   run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
