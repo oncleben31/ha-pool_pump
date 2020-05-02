@@ -33,9 +33,9 @@ schedule taking into account the pool water temperature.
 
 * Can control any switch (or other entity) that supports being turned on/off.
 * Support for distinguishing three different switch modes:
-** Auto: Turn switch on/off automatically based on rules and configuration.
-** On: Turn switch on.
-** Off: Turn switch off.
+    * Auto: Turn switch on/off automatically based on rules and configuration.
+    * On: Turn switch on.
+    * Off: Turn switch off.
 * Support for distinguishing between swimming season and off season.
 * Separate target durations in hours configurable for each season type.
 * Splits the target duration into two equal runs with a break in between.
