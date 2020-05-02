@@ -3,7 +3,7 @@
   "name": "Pool Pump Manager",
   "documentation": "https://github.com/oncleben31/ha-pool_pump",
   "dependencies": [],
-  "config_flow": true,
+  "config_flow": false,
   "codeowners": [
     "@oncleben31",
     "@exxamalte"
