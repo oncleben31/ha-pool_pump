@@ -49,6 +49,7 @@ automation:
         event: start
       - platform: state
         entity_id:
+          - input_number.pool_water_temperature
           - input_select.pool_pump_mode
           - input_boolean.swimming_season
           - input_number.run_pool_pump_hours_swimming_season
@@ -82,6 +83,12 @@ input_number:
     min: 1
     max: 6
     step: 1
+  # input_number to simulate the pool water temperature. Only for development environment.
+  pool_water_temperature:
+    name: Pool Water temperature
+    min: 0
+    max: 30
+    step: 1
 
 input_boolean:
   # input_boolean to define swiming season or off season. Will impact the duration and the schedule
@@ -101,6 +108,7 @@ input_boolean:
 pool_pump:
   switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
+  pool_temperature_entity_id: input_number.pool_water_temperature
   swimming_season_entity_id: input_boolean.swimming_season
   run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
   run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season

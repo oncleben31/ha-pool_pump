@@ -33,6 +33,7 @@ from .const import (
     POOL_PUMP_MODE_AUTO,
     ATTR_SWITCH_ENTITY_ID,
     ATTR_POOL_PUMP_MODE_ENTITY_ID,
+    ATTR_POOL_TEMPERATURE_ENTITY_ID,
     ATTR_SWIMMING_SEASON_ENTITY_ID,
     ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID,
     ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID,
@@ -49,6 +50,7 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Required(ATTR_SWITCH_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_PUMP_MODE_ENTITY_ID): cv.entity_id,
+                vol.Required(ATTR_POOL_TEMPERATURE_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID): cv.entity_id,
@@ -71,6 +73,9 @@ async def async_setup(hass: HomeAssistant, config: Config):
         _LOGGER.info(STARTUP_MESSAGE)
 
     # Copy configuration values for later use.
+    hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID] = config[DOMAIN][
+        ATTR_POOL_TEMPERATURE_ENTITY_ID
+    ]
     hass.data[DOMAIN][ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID] = config[DOMAIN][
         ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID
     ]
@@ -149,34 +154,19 @@ class PoolPumpManager:
 
     def _build_parameters(self):
         """Build parameters for pool pump manager."""
-        swimming_season = self._hass.states.get(
-            self._hass.data[DOMAIN][ATTR_SWIMMING_SEASON_ENTITY_ID]
-        )
         daylight = self._daylight_today()
-        if swimming_season.state == STATE_ON:
-            run_hours_total = min(
-                daylight,
-                float(
-                    self._hass.states.get(
-                        self._hass.data[DOMAIN][
-                            ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID
-                        ]
-                    ).state
-                ),
+        run_hours_total = min(
+            daylight,
+            float(
+                self._hass.states.get(
+                    self._hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID]
+                ).state
             )
-            offset = SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
-            break_duration = SWIMMING_SEASON_BREAK_MINUTES
-        else:
-            run_hours_total = min(
-                daylight,
-                float(
-                    self._hass.states.get(
-                        self._hass.data[DOMAIN][ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID]
-                    ).state
-                ),
-            )
-            offset = OFF_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
-            break_duration = OFF_SEASON_BREAK_MINUTES
+            / 2,
+        )
+        offset = SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
+        break_duration = SWIMMING_SEASON_BREAK_MINUTES
+
         # Try to squeeze the runs into the daylight period.
         if daylight > run_hours_total:
             breaks_maximum = (daylight - run_hours_total) * 60

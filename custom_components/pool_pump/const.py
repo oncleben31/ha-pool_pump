@@ -17,6 +17,9 @@ ATTR_POOL_PUMP_MODE_ENTITY_ID = "pool_pump_mode_entity_id"
 
 ATTR_SWITCH_ENTITY_ID = "switch_entity_id"
 
+# Constants for @oncleben31 mode
+ATTR_POOL_TEMPERATURE_ENTITY_ID = "pool_temperature_entity_id"
+
 # Constants for @exxamalte mode
 ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID = "run_pool_pump_hours_off_season_entity_id"
 ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID = (
