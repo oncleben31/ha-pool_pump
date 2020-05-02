@@ -7,18 +7,18 @@
 [![hacs][hacsbadge]][hacs]
 
 [![Discord][discord-shield]][discord]
+[![Discord francophone][discord-fr-shield]][discord-fr]
 [![Community Forum][forum-shield]][forum]
 
-_Component developped by using the amazing [blueprint][blueprint]._
+_Component developped by using the amazing development template [blueprint][blueprint]._
 
 This custom component for Home Assistant can be used to automatically control
 a pool pump that is turned on/off by a switch that Home Assistant can control.
 
-This component is based on the work of @exxamalte [here](https://github.com/exxamalte/home-assistant-customisations/tree/master/pool-pump).
-This custom component, on top of the orignal version by @exxamalte, allows to
-install it by HACS and I will adapt it to my needs.
-At completion this plugin will compute the filtering schedule taking into account
-the pool temperature.
+This component is based on the work of [@exxamalte](https://github.com/exxamalte/home-assistant-customisations/tree/master/pool-pump).
+On top of the orignal version by @exxamalte, can be installed by HACS.
+I will adapt it to my needs. At completion this plugin will compute the filtering
+schedule taking into account the pool water temperature.
 
 ## Minimum requirements
 
@@ -38,7 +38,7 @@ the pool temperature.
 * Automatically adjusts the runs to sunrise and sunset.
 * Initialises an entity (`pool_pump.schedule`) that shows the current or next
   run of the pool pump.
-* Support for a water level sensor to specify an entity that indicates if the
+* Optional: Support for a water level sensor to specify an entity that indicates if the
   pool has reached a critical water level in which case the pool pump should
   not run at all.
 
@@ -52,10 +52,11 @@ the pool temperature.
 
 ### HACS installation
 
-1. Add this repository in HACS
-2. search and install Pool Pump Manger in HACS
-6. Modify your `configuration.yaml` as explain below
-7. Restart Home Assistant
+1. Install [HACS](https://hacs.xyz/). That way you get updates automatically.
+2. Add this Github repository as custom repository in HACS settings.
+3. search and install "Pool Pump Manger" in HACS and click `install`.
+4. Modify your `configuration.yaml` as explain below.
+5. Restart Home Assistant.
 
 ### Manual installation
 
@@ -212,12 +213,14 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 ***
 
 [blueprint]: https://github.com/custom-components/blueprint
-[commits-shield]: https://img.shields.io/github/commit-activity/y/custom-components/blueprint.svg?style=for-the-badge
+[commits-shield]: https://img.shields.io/github/commit-activity/y/oncleben31/ha-pool_pump.svg?style=for-the-badge
 [commits]: https://github.com/oncleben31/ha-pool_pump/commits/master
 [hacs]: https://github.com/custom-components/hacs
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
+[discord-fr]: https://discord.gg/JeTFJzE$
 [discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
+[discord-fr-shield]: https://img.shields.io/discord/542746125292273674?style=for-the-badge
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
 [license-shield]: https://img.shields.io/github/license/custom-components/blueprint.svg?style=for-the-badge
