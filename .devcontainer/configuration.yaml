@@ -16,7 +16,8 @@ automation:
         to: 'On'
     action:
       service: homeassistant.turn_on
-      entity_id: switch.fake_pump_switch
+      # entity_id: switch.fake_pump_switch ### replaced for development
+      entity_id: input_boolean.fake_pump_switch
   - alias: 'Pool Pump Off'
     trigger:
       - platform: state
@@ -24,7 +25,8 @@ automation:
         to: 'Off'
     action:
       service: homeassistant.turn_off
-      entity_id: switch.fake_pump_switch
+      # entity_id: switch.fake_pump_switch ### replaced for development
+      entity_id: input_boolean.fake_pump_switch
   - alias: 'Check Pool Pump Periodically'
     trigger:
       - platform: time_pattern
@@ -46,14 +48,13 @@ automation:
       - platform: homeassistant
         event: start
       - platform: state
-        entity_id: input_select.pool_pump_mode
-        to: 'Auto'
-      - platform: state
         entity_id:
+          - input_select.pool_pump_mode
           - input_boolean.swimming_season
           - input_number.run_pool_pump_hours_swimming_season
           - input_number.run_pool_pump_hours_off_season
-          - binary_sensor.pool_water_level_critical
+          # - binary_sensor.pool_water_level_critical ### replaced for development
+          - input_boolean.fake_water_level_critical
     action:
       service: pool_pump.check
 
@@ -68,11 +69,9 @@ input_select:
     initial: 'Auto'
     icon: mdi:water-pump
 
-input_boolean:
+#input_boolean:
   # input_boolean to define swiming season or off season. Will impact the duration and the schedule
-  swimming_season:
-    name: Swimming Season
-    icon: mdi:swim
+
 
 
 input_number:
@@ -91,20 +90,26 @@ input_number:
 
 # Development environment only inputs. You don't need them except for contributing to this custom component
 #
+# input_boolean to simulate the entity switch.
+# input_boolean to simulate the water critical level sensor
+
 input_boolean:
-  # input_boolean to simulate the entity switch.
+  swimming_season:
+    name: Swimming Season
+    icon: mdi:swim
   fake_pump_switch:
     name: Pump
-  # input_boolean to simulate the water critical level sensor
+    icon: mdi:engine
   fake_water_level_critical:
-    Name: Water Critical Level
+    name: Water Critical Level
+    icon: mdi:hydraulic-oil-level
 
 # Pool Pump Manager custom component configuration
 # `water_level_critical_entity_id` is optional
 pool_pump:
-  switch_entity_id: switch.fake_pump_switch
+  switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
   swimming_season_entity_id: input_boolean.swimming_season
   run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
   run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
-  water_level_critical_entity_id: binary_sensor.fake_water_level_critical
+  water_level_critical_entity_id: input_boolean.fake_water_level_critical
