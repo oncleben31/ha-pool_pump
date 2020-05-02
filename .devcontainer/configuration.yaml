@@ -69,11 +69,6 @@ input_select:
     initial: 'Auto'
     icon: mdi:water-pump
 
-#input_boolean:
-  # input_boolean to define swiming season or off season. Will impact the duration and the schedule
-
-
-
 input_number:
   # input_number to define filtering duration during swiming season
   run_pool_pump_hours_swimming_season:
@@ -88,28 +83,26 @@ input_number:
     max: 6
     step: 1
 
-# Development environment only inputs. You don't need them except for contributing to this custom component
-#
-# input_boolean to simulate the entity switch.
-# input_boolean to simulate the water critical level sensor
-
 input_boolean:
+  # input_boolean to define swiming season or off season. Will impact the duration and the schedule
   swimming_season:
     name: Swimming Season
     icon: mdi:swim
+  # input_boolean to simulate the pump entity switch. Only for development environment.
   fake_pump_switch:
     name: Pump
     icon: mdi:engine
+  # input_boolean to simulate the water critical level sensor. Only for development environment.
   fake_water_level_critical:
     name: Water Critical Level
     icon: mdi:hydraulic-oil-level
 
 # Pool Pump Manager custom component configuration
-# `water_level_critical_entity_id` is optional
 pool_pump:
   switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
   swimming_season_entity_id: input_boolean.swimming_season
   run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
   run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
+  # optional:
   water_level_critical_entity_id: input_boolean.fake_water_level_critical

@@ -202,12 +202,13 @@ make the right decision and turn the pool pump on or off automatically.
 
 ```yaml
 pool_pump:
-  switch_entity_id: switch.pool_pump_switch
+  switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
   swimming_season_entity_id: input_boolean.swimming_season
   run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
   run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
-  water_level_critical_entity_id: binary_sensor.pool_water_level_critical
+  # optional:
+  water_level_critical_entity_id: input_boolean.fake_water_level_critical
 ```
 
 ## Contributions are welcome!
