@@ -16,7 +16,11 @@ This custom component for Home Assistant can be used to automatically control
 a pool pump that is turned on/off by a switch that Home Assistant can control.
 
 This component is based on the work of [@exxamalte](https://github.com/exxamalte/home-assistant-customisations/tree/master/pool-pump).
-On top of the orignal version by @exxamalte, can be installed by HACS.
+
+On top of the orignal version by @exxamalte, this version can be installed by HACS
+and you can use the [blueprint][blueprint] feature to quickly fork this repo and
+have a working development environment in a container.
+
 I will adapt it to my needs. At completion this plugin will compute the filtering
 schedule taking into account the pool water temperature.
 
@@ -27,7 +31,7 @@ schedule taking into account the pool water temperature.
 
 ## Features
 
-* Can control any switch that supports being turned on/off.
+* Can control any switch (or other entity) that supports being turned on/off.
 * Support for distinguishing three different switch modes:
 ** Auto: Turn switch on/off automatically based on rules and configuration.
 ** On: Turn switch on.
@@ -136,10 +140,8 @@ automation:
       - platform: homeassistant
         event: start
       - platform: state
-        entity_id: input_select.pool_pump_mode
-        to: 'Auto'
-      - platform: state
         entity_id:
+          - input_select.pool_pump_mode
           - input_boolean.swimming_season
           - input_number.run_pool_pump_hours_swimming_season
           - input_number.run_pool_pump_hours_off_season
@@ -191,7 +193,9 @@ The Pool Pump manager supports specifying an entity id using parameter
 not turn on, and if it is `off` then the manager will just follow its time/sun
 based algorithm to turn the pool pump on or off.
 
-## Pool Pump configuration
+Setting thin entity dedicated to critical water level is optionnal.
+
+### Pool Pump integration configuration
 
 The pool pump component needs all the above entities as input to be able to
 make the right decision and turn the pool pump on or off automatically.
@@ -219,8 +223,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
 [discord-fr]: https://discord.gg/JeTFJzE$
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[discord-fr-shield]: https://img.shields.io/discord/542746125292273674?style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge&label=HA%20Discord
+[discord-fr-shield]: https://img.shields.io/discord/542746125292273674?style=for-the-badge&label=Discord%20francophone
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
 [license-shield]: https://img.shields.io/github/license/custom-components/blueprint.svg?style=for-the-badge

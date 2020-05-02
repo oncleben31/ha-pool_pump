@@ -16,7 +16,11 @@ This custom component for Home Assistant can be used to automatically control
 a pool pump that is turned on/off by a switch that Home Assistant can control.
 
 This component is based on the work of [@exxamalte](https://github.com/exxamalte/home-assistant-customisations/tree/master/pool-pump).
-On top of the orignal version by @exxamalte, can be installed by HACS.
+
+On top of the orignal version by @exxamalte, this version can be installed by HACS
+and you can use the [blueprint][blueprint] feature to quickly fork this repo and
+have a working development environment in a container.
+
 I will adapt it to my needs. At completion this plugin will compute the filtering
 schedule taking into account the pool water temperature.
 
@@ -87,8 +91,8 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
 [discord-fr]: https://discord.gg/JeTFJzE$
-[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge
-[discord-fr-shield]: https://img.shields.io/discord/542746125292273674?style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/330944238910963714.svg?style=for-the-badge&label=HA%20Discord
+[discord-fr-shield]: https://img.shields.io/discord/542746125292273674?style=for-the-badge&label=Discord%20francophone
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
 [forum]: https://community.home-assistant.io/
 [license-shield]: https://img.shields.io/github/license/custom-components/blueprint.svg?style=for-the-badge
