@@ -83,6 +83,8 @@ to use it. Please read [README.md](README.md) for additional documentation.
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
 
+<!---->
+
 ***
 
 [blueprint]: https://github.com/custom-components/blueprint
