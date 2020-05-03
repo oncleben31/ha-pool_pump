@@ -72,7 +72,7 @@ input_number:
   pool_water_temperature:
     name: Pool Water temperature
     min: 0
-    max: 30
+    max: 35
     step: 1
 
 input_boolean:
