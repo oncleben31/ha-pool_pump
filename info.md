@@ -2,7 +2,7 @@
 
 [![GitHub Release][releases-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
-[![License][license-shield]](LICENSE)
+[![License][license-shield]][license]
 
 [![hacs][hacsbadge]][hacs]
 
@@ -77,11 +77,9 @@ pool_pump:
 All parameters are required except the last one `water_level_critical_entity_id`.
 
 You will need to set some automations and inputs (input_boolean, input_select and input_numbers)
-to use it. Please read [README.md](README.md) for additional documentation.
+to use it. Please read [README.md](https://github.com/oncleben31/ha-pool_pump/blob/master/README.md) for additional documentation.
 
-## Contributions are welcome!
-
-If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+<!---->
 
 <!---->
 
@@ -101,3 +99,4 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 [license-shield]: https://img.shields.io/github/license/custom-components/blueprint.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/oncleben31/ha-pool_pump.svg?style=for-the-badge
 [releases]: https://github.com/oncleben31/ha-pool_pump/releases
+[license]: https://github.com/oncleben31/ha-pool_pump/blob/master/LICENSE
