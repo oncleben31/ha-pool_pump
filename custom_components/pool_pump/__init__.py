@@ -24,6 +24,8 @@ from homeassistant.helpers.sun import get_astral_event_date, get_astral_event_ne
 from homeassistant.util import dt as dt_util
 from homeassistant.core import Config, HomeAssistant
 
+from pypool_pump import AbacusFilteringDuration
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +36,8 @@ from .const import (
     ATTR_SWITCH_ENTITY_ID,
     ATTR_POOL_PUMP_MODE_ENTITY_ID,
     ATTR_POOL_TEMPERATURE_ENTITY_ID,
+    ATTR_TOTAL_DAILY_FILTERING_DURATION,
+    ATTR_NEXT_RUN_SCHEDULE,
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
     SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES,
     SWIMMING_SEASON_BREAK_MINUTES,
@@ -106,11 +110,15 @@ async def async_setup(hass: HomeAssistant, config: Config):
                     _LOGGER.debug("Next run: %s", run)
                 schedule = run.pretty_print()
             # Set time range so that this can be displayed in the UI.
-            hass.states.async_set("{}.schedule".format(DOMAIN), schedule)
+            hass.states.async_set(
+                "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), schedule
+            )
             # And now check if the pool pump should be running.
             await manager.check()
         else:
-            hass.states.async_set("{}.schedule".format(DOMAIN), "Manual Mode")
+            hass.states.async_set(
+                "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), "Manual Mode"
+            )
 
     hass.services.async_register(DOMAIN, "check", check)
 
@@ -126,12 +134,15 @@ class PoolPumpManager:
         self._hass = hass
         self._now = now
         self._sun = self._hass.states.get("sun.sun")
+        self._pool_controler = AbacusFilteringDuration()
         sunrise = get_astral_event_date(self._hass, SUN_EVENT_SUNRISE, self._now.date())
+        noon = get_astral_event_date(self._hass, "solar_noon", self._now.date())
         self._first_run_offset_after_sunrise, self._durations = self._build_parameters()
         run_start_time = self._round_to_next_five_minutes(
             sunrise + timedelta(minutes=self._first_run_offset_after_sunrise)
         )
         self._runs = self.build_runs(run_start_time, self._durations)
+        _LOGGER.debug("Solar noon is at: {}".format(noon))
 
     def __repr__(self):
         """Return string representation of this feed."""
@@ -139,13 +150,16 @@ class PoolPumpManager:
 
     def _build_parameters(self):
         """Build parameters for pool pump manager."""
-        run_hours_total = (
+        run_hours_total = self._pool_controler.duration(
             float(
                 self._hass.states.get(
                     self._hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID]
                 ).state
             )
-            / 2
+        )
+        self._hass.states.async_set(
+            "{}.{}".format(DOMAIN, ATTR_TOTAL_DAILY_FILTERING_DURATION),
+            format(run_hours_total, ".2f"),
         )
         offset = SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
         break_duration = SWIMMING_SEASON_BREAK_MINUTES
