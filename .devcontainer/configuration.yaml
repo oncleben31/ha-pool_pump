@@ -16,7 +16,7 @@ automation:
         to: 'On'
     action:
       service: homeassistant.turn_on
-      # entity_id: switch.fake_pump_switch ### replaced for development
+      # entity_id: switch.pool_pump_switch ### replaced for development
       entity_id: input_boolean.fake_pump_switch
   - alias: 'Pool Pump Off'
     trigger:
@@ -25,7 +25,7 @@ automation:
         to: 'Off'
     action:
       service: homeassistant.turn_off
-      # entity_id: switch.fake_pump_switch ### replaced for development
+      # entity_id: switch.pool_pump_switch ### replaced for development
       entity_id: input_boolean.fake_pump_switch
   - alias: 'Check Pool Pump Periodically'
     trigger:
@@ -83,3 +83,4 @@ pool_pump:
   pool_temperature_entity_id: input_number.pool_water_temperature
   # optional:
   water_level_critical_entity_id: input_boolean.fake_water_level_critical
+  schedule_break_in_hours: 1.0
