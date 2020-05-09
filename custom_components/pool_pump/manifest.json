@@ -9,6 +9,6 @@
     "@exxamalte"
   ],
   "requirements": [
-    "git+https://github.com/oncleben31/pypool-pump.git@dev#pypool_pump==0.0.2beta3"
+    "pypool_pump==0.0.1"
   ]
 }

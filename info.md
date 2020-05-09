@@ -31,26 +31,20 @@ schedule taking into account the pool water temperature.
 
 ## Features
 
-* Can control any switch that supports being turned on/off.
+* Compute the totatl duration according to the pool water tempearture.
+* Can control any switch (or other entity) that supports being turned on/off.
 * Support for distinguishing three different switch modes:
     * Auto: Turn switch on/off automatically based on rules and configuration.
     * On: Turn switch on.
     * Off: Turn switch off.
-* Support for distinguishing between swimming season and off season.
-* Separate target durations in hours configurable for each season type.
-* Splits the target duration into two equal runs with a break in between.
-* Automatically adjusts the runs to sunrise and sunset.
+* Splits the total target duration into two runs arround the solar noon.
+1/3 before ans 2/3 after to allow filtering during the hottest part of the day.
+* You can add a customisable break between the two runs.
 * Initialises an entity (`pool_pump.schedule`) that shows the current or next
   run of the pool pump.
 * Optional: Support for a water level sensor to specify an entity that indicates if the
   pool has reached a critical water level in which case the pool pump should
   not run at all.
-
-## Caveats
-
-* Will limit the requested duration to the total amount of daylight
-  (sunrise to sunset) available that day.
-* Does not currently consider solar electricity production.
 
 ## Installation
 
@@ -65,16 +59,15 @@ Minimal content in your `configuration.yaml` file is:
 
 ```yaml
 pool_pump:
-  switch_entity_id: input_boolean.fake_pump_switch
+  switch_entity_id: switch.pool_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
-  swimming_season_entity_id: input_boolean.swimming_season
-  run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
-  run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
+  pool_temperature_entity_id: sensor.pool_water_temperature
   # optional:
-  water_level_critical_entity_id: input_boolean.fake_water_level_critical
+  water_level_critical_entity_id: binary_sensor.pool_water_level_critical
+  schedule_break_in_hours: 1.0
 ```
 
-All parameters are required except the last one `water_level_critical_entity_id`.
+All parameters are required except the two after `# optional` comment.
 
 You will need to set some automations and inputs (input_boolean, input_select and input_numbers)
 to use it. Please read [README.md](https://github.com/oncleben31/ha-pool_pump/blob/master/README.md) for additional documentation.
