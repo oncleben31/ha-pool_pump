@@ -8,7 +8,5 @@
     "@oncleben31",
     "@exxamalte"
   ],
-  "requirements": [
-    "pypool_pump==0.0.1"
-  ]
+  "requirements": []
 }
