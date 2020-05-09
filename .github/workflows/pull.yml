@@ -18,7 +18,6 @@ jobs:
 
         - name: Hassfest validation
           uses: "home-assistant/actions/hassfest@master"
-          if: always()
 
   style:
     runs-on: "ubuntu-latest"

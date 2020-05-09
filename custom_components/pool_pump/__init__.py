@@ -24,8 +24,6 @@ from homeassistant.helpers.sun import get_astral_event_date, get_astral_event_ne
 from homeassistant.util import dt as dt_util
 from homeassistant.core import Config, HomeAssistant
 
-from pypool_pump import AbacusFilteringDuration
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,12 +33,14 @@ from .const import (
     POOL_PUMP_MODE_AUTO,
     ATTR_SWITCH_ENTITY_ID,
     ATTR_POOL_PUMP_MODE_ENTITY_ID,
-    ATTR_POOL_TEMPERATURE_ENTITY_ID,
-    ATTR_TOTAL_DAILY_FILTERING_DURATION,
-    ATTR_NEXT_RUN_SCHEDULE,
+    ATTR_SWIMMING_SEASON_ENTITY_ID,
+    ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID,
+    ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID,
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
-    ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS,
-    DEFAULT_BREAK_DURATION_IN_HOURS,
+    SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES,
+    SWIMMING_SEASON_BREAK_MINUTES,
+    OFF_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES,
+    OFF_SEASON_BREAK_MINUTES,
 )
 
 CONFIG_SCHEMA = vol.Schema(
@@ -49,14 +49,12 @@ CONFIG_SCHEMA = vol.Schema(
             {
                 vol.Required(ATTR_SWITCH_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_PUMP_MODE_ENTITY_ID): cv.entity_id,
-                vol.Required(ATTR_POOL_TEMPERATURE_ENTITY_ID): cv.entity_id,
+                vol.Required(ATTR_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
+                vol.Required(ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID): cv.entity_id,
+                vol.Required(ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID): cv.entity_id,
                 vol.Optional(
                     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID, default=None
                 ): vol.Any(cv.entity_id, None),
-                vol.Optional(
-                    ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS,
-                    default=DEFAULT_BREAK_DURATION_IN_HOURS,
-                ): vol.Coerce(float),
             }
         )
     },
@@ -73,8 +71,14 @@ async def async_setup(hass: HomeAssistant, config: Config):
         _LOGGER.info(STARTUP_MESSAGE)
 
     # Copy configuration values for later use.
-    hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID] = config[DOMAIN][
-        ATTR_POOL_TEMPERATURE_ENTITY_ID
+    hass.data[DOMAIN][ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID] = config[DOMAIN][
+        ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID
+    ]
+    hass.data[DOMAIN][ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID] = config[DOMAIN][
+        ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID
+    ]
+    hass.data[DOMAIN][ATTR_SWIMMING_SEASON_ENTITY_ID] = config[DOMAIN][
+        ATTR_SWIMMING_SEASON_ENTITY_ID
     ]
     hass.data[DOMAIN][ATTR_POOL_PUMP_MODE_ENTITY_ID] = config[DOMAIN][
         ATTR_POOL_PUMP_MODE_ENTITY_ID
@@ -82,9 +86,6 @@ async def async_setup(hass: HomeAssistant, config: Config):
     hass.data[DOMAIN][ATTR_SWITCH_ENTITY_ID] = config[DOMAIN][ATTR_SWITCH_ENTITY_ID]
     hass.data[DOMAIN][ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID] = config[DOMAIN][
         ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID
-    ]
-    hass.data[DOMAIN][ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS] = config[DOMAIN][
-        ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS
     ]
 
     async def check(call):
@@ -115,15 +116,11 @@ async def async_setup(hass: HomeAssistant, config: Config):
                     _LOGGER.debug("Next run: %s", run)
                 schedule = run.pretty_print()
             # Set time range so that this can be displayed in the UI.
-            hass.states.async_set(
-                "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), schedule
-            )
+            hass.states.async_set("{}.schedule".format(DOMAIN), schedule)
             # And now check if the pool pump should be running.
             await manager.check()
         else:
-            hass.states.async_set(
-                "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), "Manual Mode"
-            )
+            hass.states.async_set("{}.schedule".format(DOMAIN), "Manual Mode")
 
     hass.services.async_register(DOMAIN, "check", check)
 
@@ -139,22 +136,12 @@ class PoolPumpManager:
         self._hass = hass
         self._now = now
         self._sun = self._hass.states.get("sun.sun")
-
-        schedule_config = {
-            "break_duration": hass.data[DOMAIN][ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS]
-        }
-        self._pool_controler = AbacusFilteringDuration(schedule_config=schedule_config)
-
-        # TODO: check when the schedule for next day is computed
-        noon = dt_util.as_local(
-            get_astral_event_date(self._hass, "solar_noon", self._now.date())
+        sunrise = get_astral_event_date(self._hass, SUN_EVENT_SUNRISE, self._now.date())
+        self._first_run_offset_after_sunrise, self._durations = self._build_parameters()
+        run_start_time = self._round_to_next_five_minutes(
+            sunrise + timedelta(minutes=self._first_run_offset_after_sunrise)
         )
-        _LOGGER.debug("Solar noon is at: {}".format(noon))
-
-        self._total_duration_in_hours = self._build_parameters()
-
-        # Create runs with a pivot on solar noon
-        self._runs = self._pool_controler.update_schedule(noon)
+        self._runs = self.build_runs(run_start_time, self._durations)
 
     def __repr__(self):
         """Return string representation of this feed."""
@@ -162,37 +149,106 @@ class PoolPumpManager:
 
     def _build_parameters(self):
         """Build parameters for pool pump manager."""
-        # Compute total duration based on Pool temperature
-        run_hours_total = self._pool_controler.duration(
-            float(
-                self._hass.states.get(
-                    self._hass.data[DOMAIN][ATTR_POOL_TEMPERATURE_ENTITY_ID]
-                ).state
+        swimming_season = self._hass.states.get(
+            self._hass.data[DOMAIN][ATTR_SWIMMING_SEASON_ENTITY_ID]
+        )
+        daylight = self._daylight_today()
+        if swimming_season.state == STATE_ON:
+            run_hours_total = min(
+                daylight,
+                float(
+                    self._hass.states.get(
+                        self._hass.data[DOMAIN][
+                            ATTR_RUN_PUMP_IN_SWIMMING_SEASON_ENTITY_ID
+                        ]
+                    ).state
+                ),
             )
-        )
-        _LOGGER.debug(
-            "Daily filtering total duration: {} hours".format(run_hours_total)
-        )
+            offset = SWIMMING_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
+            break_duration = SWIMMING_SEASON_BREAK_MINUTES
+        else:
+            run_hours_total = min(
+                daylight,
+                float(
+                    self._hass.states.get(
+                        self._hass.data[DOMAIN][ATTR_RUN_PUMP_IN_OFF_SEASON_ENTITY_ID]
+                    ).state
+                ),
+            )
+            offset = OFF_SEASON_RUN_1_AFTER_SUNRISE_OFFSET_MINUTES
+            break_duration = OFF_SEASON_BREAK_MINUTES
+        # Try to squeeze the runs into the daylight period.
+        if daylight > run_hours_total:
+            breaks_maximum = (daylight - run_hours_total) * 60
+            _LOGGER.debug(
+                "Breaks maximum is %.1f for offset %s and break %s",
+                breaks_maximum,
+                offset,
+                break_duration,
+            )
+            if breaks_maximum < break_duration + offset:
+                # Re-arrange the breaks.
+                offset = breaks_maximum / 2
+                break_duration = breaks_maximum / 2
+                _LOGGER.debug(
+                    "Shortened offset to %.1f and break to %.1f", offset, break_duration
+                )
+        else:
+            # No break, just run the pump while the sun is shining.
+            break_duration = 0
+            _LOGGER.debug("Break shortened to %.1f", break_duration)
+        # Calculate durations of runs
+        duration = run_hours_total * 60.0 * 0.5
+        durations = [duration, break_duration, duration]
+        return offset, durations
 
-        # Update state with  total duration
-        self._hass.states.async_set(
-            "{}.{}".format(DOMAIN, ATTR_TOTAL_DAILY_FILTERING_DURATION),
-            format(run_hours_total, ".2f"),
+    def _daylight_today(self) -> float:
+        """Calculate duration in hours between sunrise and sunset today."""
+        today = dt_util.now()
+        today = today.replace(hour=1)
+        _LOGGER.debug("Calculating daylight for today: %s", today)
+        sunrise = get_astral_event_next(
+            self._hass, SUN_EVENT_SUNRISE, dt_util.as_utc(today)
         )
+        sunset = get_astral_event_next(
+            self._hass, SUN_EVENT_SUNSET, dt_util.as_utc(today)
+        )
+        daylight = sunset - sunrise
+        daylight_in_hours = daylight.total_seconds() / 3600
+        _LOGGER.debug("Total daylight today: %.1f hours", daylight_in_hours)
+        return daylight_in_hours
 
-        # Return total duration in hours
-        return run_hours_total
+    def build_runs(self, run_start_time, durations):
+        """Build the list of runs."""
+        if not run_start_time:
+            _LOGGER.error("Must provide start time for run")
+            return None
+        if not durations or not isinstance(durations, list):
+            _LOGGER.error("Must provide durations for run")
+            return None
+        runs = []
+        run_duration = durations[0]
+        current_run = Run(run_start_time, run_duration)
+        runs.append(current_run)
+        remaining_durations = durations[1:]
+        if len(remaining_durations) >= 2:
+            next_start_time = self._round_to_next_five_minutes(
+                current_run.stop_time + timedelta(minutes=remaining_durations.pop(0))
+            )
+            runs.extend(self.build_runs(next_start_time, remaining_durations))
+        return runs
 
     async def check(self):
         """Check if the pool pump is supposed to run now."""
         if await self.is_water_level_critical():
             _LOGGER.debug("Water level critical - pump should be off")
         else:
-            for run in self._runs:
-                if run.run_now(self._now):
-                    _LOGGER.debug("Pool pump should be on now: %s", run)
-                    await self._switch_pool_pump(STATE_ON)
-                    return
+            if self._sun.state == STATE_ABOVE_HORIZON:
+                for run in self._runs:
+                    if run.run_now(self._now):
+                        _LOGGER.debug("Pool pump should be on now: %s", run)
+                        await self._switch_pool_pump(STATE_ON)
+                        return
         # If we arrive here, the pool pump should be off.
         _LOGGER.debug("Pool pump should be off")
         await self._switch_pool_pump(STATE_OFF)
@@ -248,3 +304,50 @@ class PoolPumpManager:
                 )
         else:
             _LOGGER.warning("Switch unavailable: %s", switch_entity_id)
+
+
+class Run:
+    """Represents a single run of the pool pump."""
+
+    def __init__(self, start_time, duration_in_minutes):
+        """Initialise run."""
+        self._start_time = dt_util.as_local(start_time)
+        self._duration = duration_in_minutes
+
+    def __repr__(self):
+        """Return string representation of this feed."""
+        return "<{}(start={}, stop={}, duration={})>".format(
+            self.__class__.__name__, self.start_time, self.stop_time, self.duration
+        )
+
+    @property
+    def duration(self):
+        """Return duration of this run."""
+        return self._duration
+
+    @property
+    def start_time(self):
+        """Return start time of this run."""
+        return self._start_time
+
+    @property
+    def stop_time(self):
+        """Return stop time of this run."""
+        return self.start_time + timedelta(minutes=self.duration)
+
+    def run_now(self, time):
+        """Check if the provided time falls within this run's timeframe."""
+        return self.start_time <= time < self.stop_time
+
+    def is_next_run(self, time):
+        """Check if this is the next run after the provided time."""
+        return time <= self.stop_time
+
+    def pretty_print(self):
+        """Provide a usable representation of start and stop time."""
+        if self.start_time.day != dt_util.now().day:
+            start = self.start_time.strftime("%a, %H:%M")
+        else:
+            start = self.start_time.strftime("%H:%M")
+        end = self.stop_time.strftime("%H:%M")
+        return "{} - {}".format(start, end)
