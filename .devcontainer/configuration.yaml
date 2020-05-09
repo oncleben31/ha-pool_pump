@@ -16,7 +16,7 @@ automation:
         to: 'On'
     action:
       service: homeassistant.turn_on
-      # entity_id: switch.fake_pump_switch ### replaced for development
+      # entity_id: switch.pool_pump_switch ### replaced for development
       entity_id: input_boolean.fake_pump_switch
   - alias: 'Pool Pump Off'
     trigger:
@@ -25,22 +25,13 @@ automation:
         to: 'Off'
     action:
       service: homeassistant.turn_off
-      # entity_id: switch.fake_pump_switch ### replaced for development
+      # entity_id: switch.pool_pump_switch ### replaced for development
       entity_id: input_boolean.fake_pump_switch
   - alias: 'Check Pool Pump Periodically'
     trigger:
       - platform: time_pattern
         minutes: '/5'
         seconds: 00
-    condition:
-      condition: and
-      conditions:
-        - condition: sun
-          after: sunrise
-          after_offset: '-1:00:00'
-        - condition: sun
-          before: sunset
-          before_offset: '1:30:00'
     action:
       service: pool_pump.check
   - alias: 'Check Pool Pump on Event'
@@ -49,10 +40,9 @@ automation:
         event: start
       - platform: state
         entity_id:
+          # - sensor.pool_water_temperature ### replaced for development
+          - input_number.pool_water_temperature
           - input_select.pool_pump_mode
-          - input_boolean.swimming_season
-          - input_number.run_pool_pump_hours_swimming_season
-          - input_number.run_pool_pump_hours_off_season
           # - binary_sensor.pool_water_level_critical ### replaced for development
           - input_boolean.fake_water_level_critical
     action:
@@ -70,24 +60,13 @@ input_select:
     icon: mdi:water-pump
 
 input_number:
-  # input_number to define filtering duration during swiming season
-  run_pool_pump_hours_swimming_season:
-    name: Run Pool Pump in Swimming Season
-    min: 1
-    max: 8
-    step: 1
-  # input_number to define filtering duration during off season
-  run_pool_pump_hours_off_season:
-    name: Run Pool Pump in Off Season
-    min: 1
-    max: 6
+  pool_water_temperature:
+    name: Pool Water temperature
+    min: 0
+    max: 35
     step: 1
 
 input_boolean:
-  # input_boolean to define swiming season or off season. Will impact the duration and the schedule
-  swimming_season:
-    name: Swimming Season
-    icon: mdi:swim
   # input_boolean to simulate the pump entity switch. Only for development environment.
   fake_pump_switch:
     name: Pump
@@ -101,8 +80,7 @@ input_boolean:
 pool_pump:
   switch_entity_id: input_boolean.fake_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
-  swimming_season_entity_id: input_boolean.swimming_season
-  run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
-  run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
+  pool_temperature_entity_id: input_number.pool_water_temperature
   # optional:
   water_level_critical_entity_id: input_boolean.fake_water_level_critical
+  schedule_break_in_hours: 1.0

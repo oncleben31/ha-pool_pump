@@ -31,26 +31,20 @@ schedule taking into account the pool water temperature.
 
 ## Features
 
+* Compute the totatl duration according to the pool water tempearture.
 * Can control any switch (or other entity) that supports being turned on/off.
 * Support for distinguishing three different switch modes:
     * Auto: Turn switch on/off automatically based on rules and configuration.
     * On: Turn switch on.
     * Off: Turn switch off.
-* Support for distinguishing between swimming season and off season.
-* Separate target durations in hours configurable for each season type.
-* Splits the target duration into two equal runs with a break in between.
-* Automatically adjusts the runs to sunrise and sunset.
+* Splits the total target duration into two runs arround the solar noon.
+1/3 before ans 2/3 after to allow filtering during the hottest part of the day.
+* You can add a customisable break between the two runs.
 * Initialises an entity (`pool_pump.schedule`) that shows the current or next
   run of the pool pump.
 * Optional: Support for a water level sensor to specify an entity that indicates if the
   pool has reached a critical water level in which case the pool pump should
   not run at all.
-
-## Caveats
-
-* Will limit the requested duration to the total amount of daylight
-  (sunrise to sunset) available that day.
-* Does not currently consider solar electricity production.
 
 ## Installation
 
@@ -111,6 +105,7 @@ automation:
     action:
       service: homeassistant.turn_on
       entity_id: switch.pool_pump_switch
+
   - alias: 'Pool Pump Off'
     trigger:
       - platform: state
@@ -119,68 +114,37 @@ automation:
     action:
       service: homeassistant.turn_off
       entity_id: switch.pool_pump_switch
+
   - alias: 'Check Pool Pump Periodically'
     trigger:
       - platform: time_pattern
         minutes: '/5'
         seconds: 00
-    condition:
-      condition: and
-      conditions:
-        - condition: sun
-          after: sunrise
-          after_offset: '-1:00:00'
-        - condition: sun
-          before: sunset
-          before_offset: '1:30:00'
     action:
       service: pool_pump.check
+
   - alias: 'Check Pool Pump on Event'
     trigger:
       - platform: homeassistant
         event: start
       - platform: state
         entity_id:
+          - sensor.pool_water_temperature
           - input_select.pool_pump_mode
-          - input_boolean.swimming_season
-          - input_number.run_pool_pump_hours_swimming_season
-          - input_number.run_pool_pump_hours_off_season
           - binary_sensor.pool_water_level_critical
     action:
       service: pool_pump.check
 ```
 
-### Swimming season
-
-The following input boolean is there to distinguish between swimming season
-and off season.
-
-```yaml
-input_boolean:
-  swimming_season:
-    name: Swimming Season
-    icon: mdi:swim
-```
 
 ### Number of hours to run the pool pump
 
-The following configuration adds two sliders to select the number of hours
-that the pool pump should run in swimming season and off season.
-You may want to change min/max depending on your local needs.
+The total duration of the pool pump is computed using the pool water temperature.
+You can use a sensor (like in the example below: `sensor.pool_water_temperature`) or you can
+use an `input_number` replacing the sensor to manually set the water temperatue .
 
-```yaml
-input_number:
-  run_pool_pump_hours_swimming_season:
-    name: Run Pool Pump in Swimming Season
-    min: 1
-    max: 8
-    step: 1
-  run_pool_pump_hours_off_season:
-    name: Run Pool Pump in Off Season
-    min: 1
-    max: 6
-    step: 1
-```
+Currently this integration is using an Abacus algorithm. You can go to [py_pool_pump](https://github.com/oncleben31/pypool-pump)
+for detailed information.
 
 ### Critical Water Level
 
@@ -202,14 +166,15 @@ make the right decision and turn the pool pump on or off automatically.
 
 ```yaml
 pool_pump:
-  switch_entity_id: input_boolean.fake_pump_switch
+  switch_entity_id: switch.pool_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
-  swimming_season_entity_id: input_boolean.swimming_season
-  run_pool_pump_hours_swimming_season_entity_id: input_number.run_pool_pump_hours_swimming_season
-  run_pool_pump_hours_off_season_entity_id: input_number.run_pool_pump_hours_off_season
+  pool_temperature_entity_id: sensor.pool_water_temperature
   # optional:
-  water_level_critical_entity_id: input_boolean.fake_water_level_critical
+  water_level_critical_entity_id: binary_sensor.pool_water_level_critical
+  schedule_break_in_hours: 1.0
 ```
+
+Default value for `schedule_break_in_hours` is 0 hours.
 
 ## Contributions are welcome!
 
