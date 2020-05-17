@@ -10,14 +10,14 @@
 [![Discord francophone][discord-fr-shield]][discord-fr]
 [![Community Forum][forum-shield]][forum]
 
-_Component developped by using the amazing development template [blueprint][blueprint]._
+_Component developed by using the amazing development template [blueprint][blueprint]._
 
 This custom component for Home Assistant can be used to automatically control
 a pool pump that is turned on/off by a switch that Home Assistant can control.
 
 This component is based on the work of [@exxamalte](https://github.com/exxamalte/home-assistant-customisations/tree/master/pool-pump).
 
-On top of the orignal version by @exxamalte, this version can be installed by HACS
+On top of the original version by @exxamalte, this version can be installed by HACS
 and you can use the [blueprint][blueprint] feature to quickly fork this repo and
 have a working development environment in a container.
 
@@ -31,16 +31,16 @@ schedule taking into account the pool water temperature.
 
 ## Features
 
-* Compute the totatl duration according to the pool water tempearture.
+* Compute the total duration according to the pool water temperature.
 * Can control any switch (or other entity) that supports being turned on/off.
 * Support for distinguishing three different switch modes:
     * Auto: Turn switch on/off automatically based on rules and configuration.
     * On: Turn switch on.
     * Off: Turn switch off.
-* Splits the total target duration into two runs arround the solar noon.
+* Splits the total target duration into two runs around the solar noon.
 1/3 before ans 2/3 after to allow filtering during the hottest part of the day.
-* You can add a customisable break between the two runs.
-* Initialises an entity (`pool_pump.schedule`) that shows the current or next
+* You can add a customizable break between the two runs.
+* Initializes an entity (`pool_pump.schedule`) that shows the current or next
   run of the pool pump.
 * Optional: Support for a water level sensor to specify an entity that indicates if the
   pool has reached a critical water level in which case the pool pump should
@@ -76,10 +76,10 @@ is already integrated into Home Assistant with entity id `switch.pool_pump_switc
 
 The following configuration wraps the switch into a tri-state switch which
 supports 3 modes - Auto, On, Off.
-The automations are required to translate each state into an action on the
+The automation are required to translate each state into an action on the
 actual switch connected to the pool pump.
 
-The last two automations are the ones that actually checks the pool pump state.
+The last two automation are the ones that actually checks the pool pump state.
 The first is triggered at regular intervals (5 minutes) from shortly before
 sunrise to shortly after sunset. And the second automation is triggered by
 certain events - the start of Home Assistant, immediately when you put the pool
@@ -136,12 +136,11 @@ automation:
       service: pool_pump.check
 ```
 
-
 ### Number of hours to run the pool pump
 
 The total duration of the pool pump is computed using the pool water temperature.
 You can use a sensor (like in the example below: `sensor.pool_water_temperature`) or you can
-use an `input_number` replacing the sensor to manually set the water temperatue .
+use an `input_number` replacing the sensor to manually set the water temperature .
 
 Currently this integration is using an Abacus algorithm. You can go to [py_pool_pump](https://github.com/oncleben31/pypool-pump)
 for detailed information.
@@ -157,7 +156,7 @@ The Pool Pump manager supports specifying an entity id using parameter
 not turn on, and if it is `off` then the manager will just follow its time/sun
 based algorithm to turn the pool pump on or off.
 
-Setting thin entity dedicated to critical water level is optionnal.
+Setting thin entity dedicated to critical water level is optional.
 
 ### Pool Pump integration configuration
 
