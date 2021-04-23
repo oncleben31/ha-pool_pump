@@ -38,6 +38,8 @@ from .const import (
     ATTR_POOL_TEMPERATURE_ENTITY_ID,
     ATTR_TOTAL_DAILY_FILTERING_DURATION,
     ATTR_NEXT_RUN_SCHEDULE,
+    ATTR_NEXT_RUN_START,
+    ATTR_NEXT_RUN_STOP,
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
     ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS,
     DEFAULT_BREAK_DURATION_IN_HOURS,
@@ -114,6 +116,12 @@ async def async_setup(hass: HomeAssistant, config: Config):
                     run = manager_tomorrow.next_run()
                     _LOGGER.debug("Next run: %s", run)
                 schedule = run.pretty_print()
+                hass.states.async_set(
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_START), run.start_time
+                )
+                hass.states.async_set(
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_STOP), run.stop_time
+                )
             # Set time range so that this can be displayed in the UI.
             hass.states.async_set(
                 "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), schedule
