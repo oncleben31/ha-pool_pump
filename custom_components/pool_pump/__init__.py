@@ -117,10 +117,10 @@ async def async_setup(hass: HomeAssistant, config: Config):
                     _LOGGER.debug("Next run: %s", run)
                 schedule = run.pretty_print()
                 hass.states.async_set(
-                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_START), run.start_time
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_START), run.start_time.strftime('%Y-%m-%d, %H:%M')
                 )
                 hass.states.async_set(
-                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_STOP), run.stop_time
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_STOP), run.stop_time.strftime('%Y-%m-%d, %H:%M')
                 )
             # Set time range so that this can be displayed in the UI.
             hass.states.async_set(
