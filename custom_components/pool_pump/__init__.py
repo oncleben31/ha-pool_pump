@@ -155,7 +155,7 @@ class PoolPumpManager:
 
         # TODO: check when the schedule for next day is computed
         noon = dt_util.as_local(
-            get_astral_event_date(self._hass, "solar_noon", self._now.date())
+            get_astral_event_date(self._hass, "noon", self._now.date())
         )
         _LOGGER.debug("Solar noon is at: {}".format(noon))
 
