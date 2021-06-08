@@ -25,6 +25,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.core import Config, HomeAssistant
 
 from pypool_pump import AbacusFilteringDuration
+from pypool_pump import Run
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -164,12 +165,12 @@ class PoolPumpManager:
         # Create runs with a pivot on solar noon
         self._runs = self._pool_controler.update_schedule(noon)
 
-        # Add Run on sunset
-        sunset = dt_util.as_local(
-            get_astral_event_date(self._hass, "sunset", self._now.date())
+        # Add Run on sunrise
+        sunrise = dt_util.as_local(
+            get_astral_event_date(self._hass, "sunrise", self._now.date())
         )
-        sunset_run = Run(sunset, 1)
-        self._runs.insert(0,sunset_run)
+        sunrise_run = Run(sunrise, 1)
+        self._runs.insert(0,sunrise_run)
 
     def __repr__(self):
         """Return string representation of this feed."""
