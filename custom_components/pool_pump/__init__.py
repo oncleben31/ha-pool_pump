@@ -164,6 +164,13 @@ class PoolPumpManager:
         # Create runs with a pivot on solar noon
         self._runs = self._pool_controler.update_schedule(noon)
 
+        # Add Run on sunset
+        sunset = dt_util.as_local(
+            get_astral_event_date(self._hass, "sunset", self._now.date())
+        )
+        sunset_run = Run(sunset, 1)
+        self._runs.insert(0,sunset_run)
+
     def __repr__(self):
         """Return string representation of this feed."""
         return "<{}(runs={})>".format(self.__class__.__name__, self._runs)
