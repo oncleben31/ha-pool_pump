@@ -3,7 +3,7 @@
 NAME = "Pool Pump Manager"
 DOMAIN = "pool_pump"
 DOMAIN_DATA = f"{DOMAIN}_data"
-VERSION = "0.0.2beta1"
+VERSION = "0.0.3beta1"
 
 ISSUE_URL = "https://github.com/oncleben31/ha-pool_pump/issues"
 DOC_URL = "https://github.com/oncleben31/ha-pool_pump"
@@ -22,6 +22,8 @@ ATTR_SWITCH_ENTITY_ID = "switch_entity_id"
 ATTR_POOL_TEMPERATURE_ENTITY_ID = "pool_temperature_entity_id"
 ATTR_TOTAL_DAILY_FILTERING_DURATION = "total_daily_filtering_duration"
 ATTR_NEXT_RUN_SCHEDULE = "next_run_schedule"
+ATTR_NEXT_RUN_START = "next_run_start"
+ATTR_NEXT_RUN_STOP = "next_run_stop"
 ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS = "schedule_break_in_hours"
 DEFAULT_BREAK_DURATION_IN_HOURS = 0.0
 

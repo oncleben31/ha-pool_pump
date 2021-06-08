@@ -40,8 +40,11 @@ schedule taking into account the pool water temperature.
 * Splits the total target duration into two runs arround the solar noon.
 1/3 before ans 2/3 after to allow filtering during the hottest part of the day.
 * You can add a customisable break between the two runs.
-* Initialises an entity (`pool_pump.schedule`) that shows the current or next
-  run of the pool pump.
+* Initializes the following entities:
+    * `pool_pump.next_run_schedule`: Pretty string of the scheduled current/next run.
+    * `pool_pump.next_run_start`: Starting datetime of the current/next run.
+    * `pool_pump.next_run_stop`: End datetime of the current/next run.
+    * `pool_pump.total_daily_filtering_duration`: Turn switch off.
 * Optional: Support for a water level sensor to specify an entity that indicates if the
   pool has reached a critical water level in which case the pool pump should
   not run at all.

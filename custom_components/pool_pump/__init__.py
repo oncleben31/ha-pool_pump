@@ -25,6 +25,7 @@ from homeassistant.util import dt as dt_util
 from homeassistant.core import Config, HomeAssistant
 
 from pypool_pump import AbacusFilteringDuration
+from pypool_pump import Run
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,6 +39,8 @@ from .const import (
     ATTR_POOL_TEMPERATURE_ENTITY_ID,
     ATTR_TOTAL_DAILY_FILTERING_DURATION,
     ATTR_NEXT_RUN_SCHEDULE,
+    ATTR_NEXT_RUN_START,
+    ATTR_NEXT_RUN_STOP,
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
     ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS,
     DEFAULT_BREAK_DURATION_IN_HOURS,
@@ -114,6 +117,12 @@ async def async_setup(hass: HomeAssistant, config: Config):
                     run = manager_tomorrow.next_run()
                     _LOGGER.debug("Next run: %s", run)
                 schedule = run.pretty_print()
+                hass.states.async_set(
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_START), run.start_time.strftime('%Y-%m-%d, %H:%M')
+                )
+                hass.states.async_set(
+                    "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_STOP), run.stop_time.strftime('%Y-%m-%d, %H:%M')
+                )
             # Set time range so that this can be displayed in the UI.
             hass.states.async_set(
                 "{}.{}".format(DOMAIN, ATTR_NEXT_RUN_SCHEDULE), schedule
@@ -147,7 +156,7 @@ class PoolPumpManager:
 
         # TODO: check when the schedule for next day is computed
         noon = dt_util.as_local(
-            get_astral_event_date(self._hass, "solar_noon", self._now.date())
+            get_astral_event_date(self._hass, "noon", self._now.date())
         )
         _LOGGER.debug("Solar noon is at: {}".format(noon))
 
@@ -155,6 +164,13 @@ class PoolPumpManager:
 
         # Create runs with a pivot on solar noon
         self._runs = self._pool_controler.update_schedule(noon)
+
+        # Add Run on sunrise
+        sunrise = dt_util.as_local(
+            get_astral_event_date(self._hass, "sunrise", self._now.date())
+        )
+        sunrise_run = Run(sunrise, 1)
+        self._runs.insert(0,sunrise_run)
 
     def __repr__(self):
         """Return string representation of this feed."""
