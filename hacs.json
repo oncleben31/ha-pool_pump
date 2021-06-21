@@ -2,5 +2,7 @@
     "name": "Pool Pump Manager",
     "content_in_root": false,
     "render_readme": false,
-    "iot_class": "Cloud Polling"
+    "iot_class": "Cloud Polling",
+    "homeassistant": "2021.5.0",
+    "iot_class": "calculated"
 }
