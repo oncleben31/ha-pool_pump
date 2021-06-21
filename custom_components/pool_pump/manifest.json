@@ -1,6 +1,7 @@
 {
   "domain": "pool_pump",
   "name": "Pool Pump Manager",
+  "version": "0.0.2",
   "documentation": "https://github.com/oncleben31/ha-pool_pump",
   "dependencies": [],
   "config_flow": false,
