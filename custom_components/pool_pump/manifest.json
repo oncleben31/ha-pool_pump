@@ -11,5 +11,6 @@
   ],
   "requirements": [
     "pypool_pump==0.0.1"
-  ]
+  ],
+  "iot_class": "calculated"
 }
