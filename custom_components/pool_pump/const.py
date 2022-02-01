@@ -19,6 +19,7 @@ ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID = "water_level_critical_entity_id"
 ATTR_SWITCH_ENTITY_ID = "switch_entity_id"
 
 # Constants for @oncleben31 mode
+ATTR_DURATION_PERCENTAGE_ENTITY_ID = "duration_percentage_id"
 ATTR_POOL_TEMPERATURE_ENTITY_ID = "pool_temperature_entity_id"
 ATTR_TOTAL_DAILY_FILTERING_DURATION = "total_daily_filtering_duration"
 ATTR_NEXT_RUN_SCHEDULE = "next_run_schedule"

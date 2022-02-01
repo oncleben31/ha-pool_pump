@@ -41,6 +41,7 @@ from .const import (
     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID,
     ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS,
     DEFAULT_BREAK_DURATION_IN_HOURS,
+    ATTR_DURATION_PERCENTAGE_ENTITY_ID,
 )
 
 CONFIG_SCHEMA = vol.Schema(
@@ -50,6 +51,7 @@ CONFIG_SCHEMA = vol.Schema(
                 vol.Required(ATTR_SWITCH_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_PUMP_MODE_ENTITY_ID): cv.entity_id,
                 vol.Required(ATTR_POOL_TEMPERATURE_ENTITY_ID): cv.entity_id,
+                vol.Required(ATTR_DURATION_PERCENTAGE_ENTITY_ID): cv.entity_id,                
                 vol.Optional(
                     ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID, default=None
                 ): vol.Any(cv.entity_id, None),
@@ -78,6 +80,9 @@ async def async_setup(hass: HomeAssistant, config: Config):
     ]
     hass.data[DOMAIN][ATTR_POOL_PUMP_MODE_ENTITY_ID] = config[DOMAIN][
         ATTR_POOL_PUMP_MODE_ENTITY_ID
+    ]
+    hass.data[DOMAIN][ATTR_DURATION_PERCENTAGE_ENTITY_ID] = config[DOMAIN][
+        ATTR_DURATION_PERCENTAGE_ENTITY_ID
     ]
     hass.data[DOMAIN][ATTR_SWITCH_ENTITY_ID] = config[DOMAIN][ATTR_SWITCH_ENTITY_ID]
     hass.data[DOMAIN][ATTR_WATER_LEVEL_CRITICAL_ENTITY_ID] = config[DOMAIN][
@@ -170,6 +175,13 @@ class PoolPumpManager:
                 ).state
             )
         )
+
+        run_hours_total = run_hours_total * float(
+                self._hass.states.get(
+                    self._hass.data[DOMAIN][ATTR_DURATION_PERCENTAGE_ENTITY_ID]
+                ).state
+            ) / 100
+
         _LOGGER.debug(
             "Daily filtering total duration: {} hours".format(run_hours_total)
         )
