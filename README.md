@@ -40,6 +40,7 @@ schedule taking into account the pool water temperature.
 * Splits the total target duration into two runs around the solar noon.
 1/3 before ans 2/3 after to allow filtering during the hottest part of the day.
 * You can add a customizable break between the two runs.
+* You can reduce duration according to a percentage.
 * Initializes an entity (`pool_pump.schedule`) that shows the current or next
   run of the pool pump.
 * Optional: Support for a water level sensor to specify an entity that indicates if the
@@ -96,6 +97,14 @@ input_select:
     initial: 'Auto'
     icon: mdi:water-pump
 
+input_number:
+  pool_pump_percentage:
+    name: Duration Percentage
+    initial: 100
+    min: 10
+    max: 100
+    step: 5
+
 automation:
   - alias: 'Pool Pump On'
     trigger:
@@ -132,6 +141,7 @@ automation:
           - sensor.pool_water_temperature
           - input_select.pool_pump_mode
           - binary_sensor.pool_water_level_critical
+          - input_number.pool_pump_percentage          
     action:
       service: pool_pump.check
 ```
@@ -168,6 +178,7 @@ pool_pump:
   switch_entity_id: switch.pool_pump_switch
   pool_pump_mode_entity_id: input_select.pool_pump_mode
   pool_temperature_entity_id: sensor.pool_water_temperature
+  duration_percentage_id: input_number.pool_pump_percentage  
   # optional:
   water_level_critical_entity_id: binary_sensor.pool_water_level_critical
   schedule_break_in_hours: 1.0
