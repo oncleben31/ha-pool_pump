@@ -148,7 +148,8 @@ class PoolPumpManager:
         schedule_config = {
             "break_duration": hass.data[DOMAIN][ATTR_SCHEDULE_BREAK_DURATION_IN_HOURS]
         }
-        self._pool_controler = AbacusFilteringDuration(schedule_config=schedule_config)
+        percentage = float(self._hass.states.get(self._hass.data[DOMAIN][ATTR_DURATION_PERCENTAGE_ENTITY_ID]).state)
+        self._pool_controler = AbacusFilteringDuration(percentage=percentage, schedule_config=schedule_config)
 
         # TODO: check when the schedule for next day is computed
         noon = dt_util.as_local(
@@ -175,12 +176,6 @@ class PoolPumpManager:
                 ).state
             )
         )
-
-        run_hours_total = run_hours_total * float(
-                self._hass.states.get(
-                    self._hass.data[DOMAIN][ATTR_DURATION_PERCENTAGE_ENTITY_ID]
-                ).state
-            ) / 100
 
         _LOGGER.debug(
             "Daily filtering total duration: {} hours".format(run_hours_total)
