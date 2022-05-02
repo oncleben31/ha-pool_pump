@@ -184,7 +184,7 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 [blueprint]: https://github.com/custom-components/blueprint
 [commits-shield]: https://img.shields.io/github/commit-activity/y/oncleben31/ha-pool_pump.svg?style=for-the-badge
 [commits]: https://github.com/oncleben31/ha-pool_pump/commits/master
-[hacs]: https://github.com/custom-components/hacs
+[hacs]: https://github.com/hacs/integration
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
 [discord]: https://discord.gg/Qa5fW2R
 [discord-fr]: https://discord.gg/JeTFJzE$
